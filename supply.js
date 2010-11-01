@@ -30,7 +30,7 @@
 
 window.supply = (function(window, document, undefined){
 	var version					= '1.0.5',								// current version
-		dealer					= '/cgi-bin/supply.pl',					// server script which deals us data
+		dealer					= '/cgi-bin/supply.pl',					// server script which deals us the data
 		xhr						= null,									// XmlHttpRequest object
 		getLatestPacketInterval = null,									// timer Id
 		lastLength				= 0,									// last known length from field delimiter
@@ -48,13 +48,13 @@ window.supply = (function(window, document, undefined){
 									'MSXML2.XMLHTTP.6.0'
 								  ],
 		options					= {
-			loadjavascript:		1,			// does supply require javascript files ?
-			loadstylesheet:		2,			// does supply require stylesheet files ?
+			loadjavascript:		1,			// do we need to supply javascript files ?
+			loadstylesheet:		2,			// do we need to supply stylesheet files ?
 			jsonavailable:		4,			// is JSON (parse & stringify methods) available ?   > DEPRECATED
 			callback:			8,			// was a callback method passed in ?
-			useeval:			16,			// shall Supply use eval() or script tag insertion ?
-			msie:				32,			// is the UA an internet explorer ?
-			compatibleIE:		64,			// do we have a XDomainRequest ?
+			useeval:			16,			// shall Supply use eval() or dynamic script tag insertion ?
+			msie:				32,			// is the UA an Internet Explorer ?
+			compatibleIE:		64,			// do we have a XDomainRequest object available ?
 			debug:				128			// debug mode ?
 		},
 		settings				= 0;
@@ -109,6 +109,13 @@ window.supply = (function(window, document, undefined){
 			throw new Error('Unable to create XMLHttpRequest');
 		}		
 	}());
+	
+	self.setDealer = function(path) {
+		if( typeof path === 'string')
+			dealer = path;
+			
+		return self;				
+	};
 
 	// files() takes an object as argument. That object should contain a "javascript" and a "stylesheet" property,
 	// both referencing an array with filenames. That names get JSON.stringified** and are transfered to the backend script.   ** [json will get replaced through a standard query string]
@@ -353,7 +360,7 @@ window.supply = (function(window, document, undefined){
 	// add event listeners for text/javascript & text/css mime types
 	(function(){
 		self.listen('text/javascript', function(payload, filename){
-			//try{
+			try{
 				if(settings & options.useeval){			
 					eval(payload);
 				}
@@ -366,9 +373,9 @@ window.supply = (function(window, document, undefined){
 						
 					head.insertBefore(nscr, head.firstChild);	 
 				}
-			//}catch(err){
-			//	if('console' in window) console.error(filename, ': Exception. Details -> ', err);													
-			//}								
+			}catch(err){
+				if('console' in window) console.error(filename, ': Exception. Details -> ', err);													
+			}								
 		});
 		
 		self.listen('text/css', function(payload){			

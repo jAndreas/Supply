@@ -6,8 +6,7 @@ Delivering multiple Javascript & Stylesheet files in one request, using MXHR.
 
     <script src="/js/supply.min.js?v=2"></script>
     <script type="text/javascript">
-    supply.setDealer('/cgi-bin/supply.pl');
-	supply.files({
+    supply.setDealer('/cgi-bin/supply.pl').files({
 		debug: false,
 		javascript: [
 			'/js/jquery-1.4.2.min.js',
