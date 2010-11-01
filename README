@@ -1,8 +1,8 @@
-## Supply ##
+#Supply#
 
 Load as many Javascript & Stylesheets files in ONE request.
 
-Usage:
+##Usage:##
 
     <script src="/js/supply.min.js?v=2"></script>
     <script type="text/javascript">	
