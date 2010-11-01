@@ -1,6 +1,6 @@
 #SupplyJS#
 
-Serving multiple Javascript & Stylesheet files in one request, using MXHR.
+Delivering multiple Javascript & Stylesheet files in one request, using MXHR.
 
  `Example`:
 
