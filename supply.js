@@ -41,6 +41,10 @@ window.supply = (function(window, document, undefined){
 		listeners				= {},									// mime event listeners
 		ua						= navigator.userAgent.toLowerCase(),	// user agent string
 		toStr					= Object.prototype.toString, 			// shorthand method
+		rootElem				= document.documentElement,				// root node (required for support check)
+		myID					= 'scr' + (+new Date()),
+		fillMethod				= null,									// this is going to be 'text' or 'textContents'
+		scriptElem				= document.createElement('script'),		// script element (required for support check)
 		_msxml_progid 			= [										// possible ActiveX XHR strings
 									'Microsoft.XMLHTTP', 				// no readystate === 3 support
 									'MSXML2.XMLHTTP.3.0', 				// no readystate === 3 support
@@ -55,7 +59,8 @@ window.supply = (function(window, document, undefined){
 			useeval:			16,			// shall Supply use eval() or dynamic script tag insertion ?
 			msie:				32,			// is the UA an Internet Explorer ?
 			compatibleIE:		64,			// do we have a XDomainRequest object available ?
-			debug:				128			// debug mode ?
+			debug:				128,		// debug mode ?
+			removescripts:		256			// remove scripts after inserting them ?
 		},
 		settings				= 0;
 			
@@ -67,7 +72,7 @@ window.supply = (function(window, document, undefined){
 		if(xhr) xhr.abort();
 		
 		// use eval to load javascript files
-		settings |= options.useeval;
+		// settings |= options.useeval;
 		// very simple check if we are in an internet explorer environment, to prevent accessing responseText on xhr readyState===3
 		settings |= /msie/.test(ua) ? options.msie : 0;	
 		if (settings & options.msie && ua.match(/msie\D+(\d+(\.\d+)?)/) )
@@ -108,6 +113,28 @@ window.supply = (function(window, document, undefined){
 		if(!xhr){
 			throw new Error('Unable to create XMLHttpRequest');
 		}		
+		
+		
+		fillMethod = (function() {
+			var method = null;
+		
+			scriptElem.type = 'text/javascript';
+			try {
+				scriptElem.textContent = 'window.' + myID + '=1;';
+			} catch(e) {}
+			
+			rootElem.insertBefore(scriptElem, rootElem.firstChild);
+			
+			if( window[myID] === 1) {
+				method = 'textContent';
+				delete window[myID];
+			}
+			else method = 'text';
+				
+			rootElem.removeChild(scriptElem);
+			
+			return method;
+		}());
 	}());
 	
 	self.setDealer = function(path) {
@@ -365,13 +392,14 @@ window.supply = (function(window, document, undefined){
 					eval(payload);
 				}
 				else{
-					var head				= document.getElementsByTagName('head')[0],
+					var head				= document.getElementsByTagName('head')[0] || document.documentElement,
 						nscr				= document.createElement('script');
 										
 						nscr.type			= 'text/javascript';
-						nscr.innerHTML		= payload;
+						nscr[fillMethod]	= payload;
 						
-					head.insertBefore(nscr, head.firstChild);	 
+					head.insertBefore(nscr, head.firstChild);
+					(settings & options.removescripts) && head.removeChild(nscr);	 
 				}
 			}catch(err){
 				if('console' in window) console.error(filename, ': Exception. Details -> ', err);													
@@ -379,11 +407,11 @@ window.supply = (function(window, document, undefined){
 		});
 		
 		self.listen('text/css', function(payload){			
-			var head				= document.getElementsByTagName('head')[0],
+			var head				= document.getElementsByTagName('head')[0] || document.documentElement,
 				nstyle				= document.createElement('style');
 								
 				nstyle.type			= 'text/css';
-				nstyle.innerHTML	= payload;
+				nstyle[fillMethod]	= payload;
 				
 			head.insertBefore(nstyle, head.firstChild);			
 		});
