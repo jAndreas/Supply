@@ -3,30 +3,12 @@
 // version: 1.0.5
 // ----------------------------------------------------------------------------
 // Author: Andreas Goebel
-// Date: 2010-11-01
+// Date: 2010-11-14
 // ----------------------------------------------------------------------------
-// Supply uses mxhr (multipart xhr) to transfer javascript & stylesheet files
-// asynchronously from a server to the browser. 
+// Copyright (c) 2010 Andreas Goebel
+// Dual-licensed under the BSD or MIT licenses.
+// http://www.typeofnan.com/license
 // ----------------------------------------------------------------------------
-// Public methods:
-// ----------------------------------------------------------------------------
-// files: function(object)
-// supply.files({
-//		javascript: [
-//			'foo.js',
-//			'bar.js'
-//		],
-//		stylesheet: [
-//			'sheet.css'
-//		],
-//		callback: function(){
-//		}
-// });
-// ----------------------------------------------------------------------------
-// listen: function(mime, callback)
-// supply.listen('text/javascript', function(payload, filename){
-//    eval(payload);
-// });
 
 window.supply = (function(window, document, undefined){
 	var version					= '1.0.5',								// current version
@@ -276,9 +258,8 @@ window.supply = (function(window, document, undefined){
 					packet				= packet.slice(endPos);
 					my.processPayload();
 					
-					//try {
-						my.processPacket(packet);
-					//} catch(e) { console && console.log('Supply Error: ', e); }
+					// try-catch statement removed temporarily
+					my.processPacket(packet);
 				}
 				else{
 					my.currentStream	+= packet.substr(startPos);
