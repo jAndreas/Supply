@@ -3,13 +3,11 @@
 # MXHR Streamer
 # Author: Andreas Goebel, Aug/2010
 
-package Mxhr;
+package InterRed::Util::Mxhr;
 
 use MIME::Base64;
 use strict;
 use warnings;
-
-use Data::Dumper;
 
 sub new
 {
@@ -44,23 +42,24 @@ sub addImage
 
 sub addJS
 {
-	my ($self, $script, $name) = @_;
-	$self->addPayload($script, 'text/javascript', $name);
+	my ($self, $script, $name, $mtime) = @_;
+	$self->addPayload($script, 'text/javascript', $name, $mtime);
 }
 
 sub addCSS
 {
-	my ($self, $stylesheet, $name) = @_;
-	$self->addPayload($stylesheet, 'text/css', $name);
+	my ($self, $stylesheet, $name, $mtime) = @_;
+	$self->addPayload($stylesheet, 'text/css', $name, $mtime);
 }
 
 sub addPayload
 {
-	my ($self, $data, $content_type, $name) = @_;
+	my ($self, $data, $content_type, $name, $mtime) = @_;
 	push(@{$self->{_payloads}}, {
 		'name'			=> $name,
 		'data'			=> $data,
-		'content_type'	=> $content_type
+		'content_type'	=> $content_type,
+		'mtime'			=> $mtime
 	});
 }
 
@@ -68,11 +67,11 @@ sub stream
 {
 	my ($self) 		= @_;
 	my $stream 		= [];
-	my $version		= '1.0.5';	
+	my $version		= '1.0.2';	
 	
 	foreach my $payload(@{$self->{_payloads}})
 	{				
-		push(@{$stream}, $payload->{content_type} . $self->{_boundary} . ($payload->{name} || "unnamed") . $self->{_boundary} . $payload->{data});
+		push(@{$stream}, $payload->{content_type} . $self->{_boundary} . ($payload->{name} || "unnamed") . $self->{_boundary} . ($payload->{mtime} || "000") . $self->{_boundary} . $payload->{data});
 	}		
 	
 	return $version . $self->{_newline} . join($self->{_newline}, @{$stream}) . $self->{_newline};
