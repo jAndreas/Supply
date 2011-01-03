@@ -30,48 +30,48 @@
 
 window.supply = (function(window, document, undefined){
 		var version				= '1.0.5',				// current version
-		dealer					= '/exec/supply.pl',			// server script which deals us the data
-		xhr					= null,					// XmlHttpRequest object
-		getLatestPacketInterval 		= null,					// timer Id
+		dealer					= '/exec/supply.pl',	// server script which deals us the data
+		xhr						= null,					// XmlHttpRequest object
+		getLatestPacketInterval = null,					// timer Id
 		lastLength				= 0,					// last known length from field delimiter
 		cacheDelay				= 1500,					// incremental delay, when to store received data
 		boundary				= '\u0003',				// control character (delimiter within a line) 
-		fieldDelimiter				= '\u0001',				// control character (delimiter for lines)
+		fieldDelimiter			= '\u0001',				// control character (delimiter for lines)
 		self					= {},					// returned (public) object
-		my					= {},					// private data
+		my						= {},					// private data
 		listeners				= {},					// mime event listeners
-		ua					= navigator.userAgent.toLowerCase(),	// user agent string
-		toStr					= Object.prototype.toString,		// shorthand method
-		rootElem				= document.documentElement,		// root node (required for support check)
+		ua						= navigator.userAgent.toLowerCase(),	// user agent string
+		toStr					= Object.prototype.toString,			// shorthand method
+		rootElem				= document.documentElement,				// root node (required for support check)
 		myID					= 'scr' + (+new Date()),
 		fillMethod				= null,					// this is going to be 'text' or 'textContents'
-		scriptElem				= document.createElement('script'),	// script element (required for support check)
-		_msxml_progid 				= [					// possible ActiveX XHR strings
-									'Microsoft.XMLHTTP', 			// no readystate === 3 support
-									'MSXML2.XMLHTTP.3.0', 			// no readystate === 3 support
+		scriptElem				= document.createElement('script'),		// script element (required for support check)
+		_msxml_progid 			= [						// possible ActiveX XHR strings
+									'Microsoft.XMLHTTP', 				// no readystate === 3 support
+									'MSXML2.XMLHTTP.3.0', 				// no readystate === 3 support
 									'MSXML3.XMLHTTP',			
 									'MSXML2.XMLHTTP.6.0'
-							],
+								],
 		options					= {
 			loadjavascript:		1,			// do we need to supply javascript files ?
 			loadstylesheet:		2,			// do we need to supply stylesheet files ?
 			jsonavailable:		4,			// is JSON (parse & stringify methods) available ?   > DEPRECATED
-			callback:		8,			// was a callback method passed in ?
-			useeval:		16,			// shall Supply use eval() or dynamic script tag insertion ?
-			msie:			32,			// is the UA an Internet Explorer ?
+			callback:			8,			// was a callback method passed in ?
+			useeval:			16,			// shall Supply use eval() or dynamic script tag insertion ?
+			msie:				32,			// is the UA an Internet Explorer ?
 			compatibleIE:		64,			// do we have a XDomainRequest object available ?
-			debug:			128,			// debug mode ?
-			removescripts:		256,			// remove scripts after inserting them ?
+			debug:				128,		// debug mode ?
+			removescripts:		256,		// remove scripts after inserting them ?
 			localStorage:		512			// localStorage available ?
 		},
-		settings			= 0;
+		settings				= 0;
 			
-	my.reset = function(){
+	my.reset = function blub(){
 		getLatestPacketInterval	= null;
 		lastLength				= null;
 		cacheDelay				= 1500;
 		settings			   	= 0;
-		
+	
 		if(xhr) xhr.abort();
 		
 		// use eval to load javascript files
@@ -83,7 +83,17 @@ window.supply = (function(window, document, undefined){
 				settings |= options.compatibleIE;
 				
 		// update the settings if the localStorage object is available
-		settings |= 'localStorage' in window ? options.localStorage : 0;
+		settings |= (function() {
+			if( 'localStorage' in window ) {
+				try {
+					localStorage.setItem('supply', 'foo');
+					if( localStorage.getItem('supply') === 'foo' )
+						return options.localStorage;
+				} catch( e ) { }
+			}
+			
+			return 0;
+		}());
 	    
 	    // reset the 'complete' listener
 	    if('complete' in listeners)
@@ -171,10 +181,10 @@ window.supply = (function(window, document, undefined){
 		if(_callback && (typeof _callback === 'function' || typeof _callback === 'string'))
 			settings |= options.callback;			
 			
-		if(settings & options.loadjavascript)
-			params.push(my.serialize(_jsfiles, 'js'));
 		if(settings & options.loadstylesheet)
 			params.push(my.serialize(_cssfiles, 'css'));
+		if(settings & options.loadjavascript)
+			params.push(my.serialize(_jsfiles, 'js'));
 		if(settings & options.callback){
 			if(typeof _callback === 'function'){
 				self.listen('complete', _callback); 
@@ -363,20 +373,32 @@ window.supply = (function(window, document, undefined){
 	};
 	
 	// serialize expects an array and a name to encode a query string
-	my.serialize = function(arr, n) {
+	my.serialize = function(arr, name) {
 		var ret = [],
 			len	= arr.length,
+			hlen,
+			cached_obj,
 			i;
 	
-		if( toStr.call(arr) === '[object Array]' && typeof n === 'string') {
+		if( toStr.call(arr) === '[object Array]' && typeof name === 'string') {
 			if( settings & options.localStorage ) {
 				for(i = 0; i < len; i++) {
-					ret.push([n, '=', arr[i], '~', (arr[i] in localStorage) ? JSON.parse(localStorage[arr[i]]).modified : '0'].join(''));	
+					cached_obj = (arr[i] in localStorage) ? JSON.parse(localStorage[arr[i]]) : '0';
+					
+					ret.push([name, '=', arr[i], '~', cached_obj.modified].join(''));
+					
+					if( cached_obj && cached_obj.mime === 'text/css' ) {
+						if (typeof listeners[cached_obj.mime] !== 'undefined') {
+							for (var n = 0, hlen = listeners[cached_obj.mime].length; n < hlen; n++) {										
+								listeners[cached_obj.mime][n].call(my, cached_obj.src, cached_obj.filename, null);
+							}
+						}	
+					}
 				}
 			}
 			else {
 				for(i = 0; i < len; i++) {
-					ret.push([n, '=', arr[i]].join(''));	
+					ret.push([name, '=', arr[i]].join(''));	
 				}
 			}
 			
@@ -384,6 +406,16 @@ window.supply = (function(window, document, undefined){
 		}
 		
 		return undefined;
+	};
+	
+	my.removeDuplicateNode = function(head, name) {
+		var nodes 	= document.getElementsByTagName('style'),
+			len 	= nodes.length;
+			
+		while( len-- ) {
+			if( nodes[len].getAttribute('name') === name )
+				head.removeChild(nodes[len]);
+		}
 	};
 	
 	// listen() attaches an array of callback functions(event listeners) into listeners object.
@@ -409,7 +441,9 @@ window.supply = (function(window, document, undefined){
 					setTimeout(function() { 
 						localStorage[filename] = JSON.stringify({
 							modified:	mtime,
-							src:		payload
+							src:		payload,
+							mime:		'text/javascript',
+							filename:	filename		
 						});
 					}, cacheDelay += 300);
 				}
@@ -436,8 +470,8 @@ window.supply = (function(window, document, undefined){
 			}
 		});
 		
-		self.listen('text/css', function(payload, filename) {
-			if( settings & options.localStorage ) {
+		self.listen('text/css', function(payload, filename, mtime) {
+			if( settings & options.localStorage && filename && mtime ) {
 				if( payload === 'cached' ) {
 					payload = JSON.parse(localStorage[filename]).src;
 				}
@@ -445,7 +479,9 @@ window.supply = (function(window, document, undefined){
 					setTimeout(function() { 
 						localStorage[filename] = JSON.stringify({
 							modified:	mtime,
-							src:		payload
+							src:		payload,
+							mime:		'text/css',
+							filename:	filename
 						});
 					}, cacheDelay += 300);
 				}
@@ -455,12 +491,14 @@ window.supply = (function(window, document, undefined){
 				nstyle				= document.createElement('style');
 								
 				nstyle.type			= 'text/css';
-				nstyle.name			= filename;
-				nstyle[fillMethod]		= payload;
+				nstyle[fillMethod]	= payload;
+				nstyle.setAttribute('name', filename);
+				
+			my.removeDuplicateNode(head, filename);	
 				
 			head.insertBefore(nstyle, head.firstChild);	
 			
-			if( settings & options.removescripts ) head.removeChild(nscr);
+			if( settings & options.removescripts ) head.removeChild(nstyle);
 		});
 	}());
 

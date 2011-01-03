@@ -39,8 +39,6 @@ if ($options{'js'} || $options{'css'} ) {
 		my @parts		= ();
 		my $filename	= "";
 		my $modified	= "";
-		my $javascript_dir = "/var/www/typeofnan";
-                my $css_dir = "/var/www/typeofnan";
 		
 		foreach my $file (@cssfiles)
 		{
