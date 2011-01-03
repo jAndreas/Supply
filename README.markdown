@@ -37,9 +37,10 @@ or call `supply.setDealer()` before you call `supply.files()`:
     
 
 
-The second thing that needs to be configured is the servers absolute path. This is done in `supply.pl`:
+The second thing that needs to be configured is the servers absolute path to your files. This can be done in `supply.pl`:
 
-    my $html_dir	= "/var/www/typeofnan";
+    my $javascript_dir	= "/var/www/typeofnan/js";
+    my $css_dir         = "/var/www/typeofnan/css";
     
 So if we pass `/js/init.min.js` to `supply.files()`, `supply.pl` will open
 
