@@ -30,23 +30,23 @@
 
 window.supply = (function(window, document, undefined){
 		var version				= '1.0.5',				// current version
-		dealer					= '/exec/supply.pl',	// server script which deals us the data
-		xhr						= null,					// XmlHttpRequest object
-		getLatestPacketInterval = null,					// timer Id
+		dealer					= '/exec/supply.pl',			// server script which deals us the data
+		xhr					= null,					// XmlHttpRequest object
+		getLatestPacketInterval 		= null,					// timer Id
 		lastLength				= 0,					// last known length from field delimiter
 		cacheDelay				= 1500,					// incremental delay, when to store received data
 		boundary				= '\u0003',				// control character (delimiter within a line) 
-		fieldDelimiter			= '\u0001',				// control character (delimiter for lines)
+		fieldDelimiter				= '\u0001',				// control character (delimiter for lines)
 		self					= {},					// returned (public) object
-		my						= {},					// private data
+		my					= {},					// private data
 		listeners				= {},					// mime event listeners
-		ua						= navigator.userAgent.toLowerCase(),	// user agent string
-		toStr					= Object.prototype.toString,			// shorthand method
-		rootElem				= document.documentElement,				// root node (required for support check)
+		ua					= navigator.userAgent.toLowerCase(),	// user agent string
+		toStr					= Object.prototype.toString,		// shorthand method
+		rootElem				= document.documentElement,		// root node (required for support check)
 		myID					= 'scr' + (+new Date()),
 		fillMethod				= null,					// this is going to be 'text' or 'textContents'
 		scriptElem				= document.createElement('script'),		// script element (required for support check)
-		_msxml_progid 			= [						// possible ActiveX XHR strings
+		_msxml_progid 				= [						// possible ActiveX XHR strings
 									'Microsoft.XMLHTTP', 				// no readystate === 3 support
 									'MSXML2.XMLHTTP.3.0', 				// no readystate === 3 support
 									'MSXML3.XMLHTTP',			
@@ -56,17 +56,17 @@ window.supply = (function(window, document, undefined){
 			loadjavascript:		1,			// do we need to supply javascript files ?
 			loadstylesheet:		2,			// do we need to supply stylesheet files ?
 			jsonavailable:		4,			// is JSON (parse & stringify methods) available ?   > DEPRECATED
-			callback:			8,			// was a callback method passed in ?
-			useeval:			16,			// shall Supply use eval() or dynamic script tag insertion ?
-			msie:				32,			// is the UA an Internet Explorer ?
+			callback:		8,			// was a callback method passed in ?
+			useeval:		16,			// shall Supply use eval() or dynamic script tag insertion ?
+			msie:			32,			// is the UA an Internet Explorer ?
 			compatibleIE:		64,			// do we have a XDomainRequest object available ?
-			debug:				128,		// debug mode ?
-			removescripts:		256,		// remove scripts after inserting them ?
+			debug:			128,			// debug mode ?
+			removescripts:		256,			// remove scripts after inserting them ?
 			localStorage:		512			// localStorage available ?
 		},
 		settings				= 0;
 			
-	my.reset = function blub(){
+	my.reset = function() {
 		getLatestPacketInterval	= null;
 		lastLength				= null;
 		cacheDelay				= 1500;
