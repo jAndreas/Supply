@@ -48,6 +48,8 @@ if ($options{'js'} || $options{'css'} ) {
 			
 			($filename, $modified) = split(/~/, $file);
 			
+			if( $file =~ /(\.\.|~)/ ) { next; };
+			
 			$mtime = (stat($css_dir . '/' . $filename))->[9];
 			
 			if( int($mtime) > int($modified) || int($modified) == 0 ) 
@@ -73,6 +75,8 @@ if ($options{'js'} || $options{'css'} ) {
 			$jscontent = "";
 			
 			($filename, $modified) = split(/~/, $file);
+			
+			if( $file =~ /(\.\.|~)/ ) { next; };
 			
 			$mtime = (stat($javascript_dir . '/' . $filename))->[9];
 		
