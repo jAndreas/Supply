@@ -48,7 +48,7 @@ if ($options{'js'} || $options{'css'} ) {
 			
 			($filename, $modified) = split(/~/, $file);
 			
-			if( $filename =~ /(\.\.|~)/ ) { next; };
+			if( $file =~ /(\.\.|~)/ ) { next; };
 			
 			$mtime = (stat($css_dir . '/' . $filename))->[9];
 			
@@ -76,7 +76,7 @@ if ($options{'js'} || $options{'css'} ) {
 			
 			($filename, $modified) = split(/~/, $file);
 			
-			if( $filename =~ /(\.\.|~)/ ) { next; };
+			if( $file =~ /(\.\.|~)/ ) { next; };
 			
 			$mtime = (stat($javascript_dir . '/' . $filename))->[9];
 		
