@@ -34,7 +34,7 @@ window.supply = (function(window, document, undefined){
 		xhr					= null,					// XmlHttpRequest object
 		getLatestPacketInterval 		= null,					// timer Id
 		lastLength				= 0,					// last known length from field delimiter
-		cacheDelay				= 1500,					// incremental delay, when to store received data
+		preCached				= {},					// localStorage read/write operations buffer object
 		boundary				= '\u0003',				// control character (delimiter within a line) 
 		fieldDelimiter				= '\u0001',				// control character (delimiter for lines)
 		self					= {},					// returned (public) object
@@ -86,9 +86,11 @@ window.supply = (function(window, document, undefined){
 		settings |= (function() {
 			if( 'localStorage' in window ) {
 				try {
-					localStorage.setItem('supply', 'foo');
-					if( localStorage.getItem('supply') === 'foo' )
+					localStorage.setItem('supply', 'test');
+					if( localStorage.getItem('supply') === 'test' ) {					
+						localStorage.removeItem('supply');
 						return options.localStorage;
+					}
 				} catch( e ) { }
 			}
 			
@@ -151,6 +153,10 @@ window.supply = (function(window, document, undefined){
 			
 			return method;
 		}());
+		
+		if( settings & options.localStorage ) {
+			preCached = JSON.parse(localStorage.getItem('supplyJS')) || {};		
+		}
 	}());
 	
 	self.setDealer = function(path) {
@@ -244,6 +250,10 @@ window.supply = (function(window, document, undefined){
 		if(xhr.readyState === 4 || IEload){								
 			clearInterval(getLatestPacketInterval);
 			my.getLatestPacket();
+			
+			if( settings & options.localStorage ) {
+				localStorage.setItem('supplyJS', JSON.stringify(preCached));		
+			}
 			
 			if(listeners.complete && listeners.complete.length){
 				for (var n=0, len=listeners.complete.length; n < len; n++){
@@ -383,7 +393,7 @@ window.supply = (function(window, document, undefined){
 		if( toStr.call(arr) === '[object Array]' && typeof name === 'string') {
 			if( settings & options.localStorage ) {
 				for(i = 0; i < len; i++) {
-					cached_obj = (arr[i] in localStorage) ? JSON.parse(localStorage[arr[i]]) : '0';
+					cached_obj = (arr[i] in preCached) ? JSON.parse(preCached[arr[i]]) : '0';
 					
 					ret.push([name, '=', arr[i], '~', cached_obj.modified].join(''));
 					
@@ -435,17 +445,15 @@ window.supply = (function(window, document, undefined){
 		self.listen('text/javascript', function(payload, filename, mtime){
 			if( settings & options.localStorage ) {
 				if( payload === 'cached' ) {
-					payload = JSON.parse(localStorage[filename]).src;
+					payload = JSON.parse(preCached[filename]).src;
 				}
 				else {
-					setTimeout(function() { 
-						localStorage[filename] = JSON.stringify({
-							modified:	mtime,
-							src:		payload,
-							mime:		'text/javascript',
-							filename:	filename		
-						});
-					}, cacheDelay += 300);
+					preCached[filename] = JSON.stringify({
+						modified:	mtime,
+						src:		payload,
+						mime:		'text/javascript',
+						filename:	filename		
+					});
 				}
 			}
 			
@@ -473,17 +481,15 @@ window.supply = (function(window, document, undefined){
 		self.listen('text/css', function(payload, filename, mtime) {
 			if( settings & options.localStorage && filename && mtime ) {
 				if( payload === 'cached' ) {
-					payload = JSON.parse(localStorage[filename]).src;
+					payload = JSON.parse(preCached[filename]).src;
 				}
 				else {
-					setTimeout(function() { 
-						localStorage[filename] = JSON.stringify({
-							modified:	mtime,
-							src:		payload,
-							mime:		'text/css',
-							filename:	filename
-						});
-					}, cacheDelay += 300);
+					preCached[filename] = JSON.stringify({
+						modified:	mtime,
+						src:		payload,
+						mime:		'text/css',
+						filename:	filename
+					});
 				}
 			}
 						
