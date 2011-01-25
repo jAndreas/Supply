@@ -59,7 +59,7 @@ sub addPayload {
 sub stream {
 	my ($self) 		= @_;
 	my $stream 		= [];
-	my $version		= '1.1.0';	
+	my $version		= '1.0.2';	
 	
 	foreach my $payload(@{$self->{_payloads}}) {				
 		push(@{$stream}, $payload->{content_type} . $self->{_boundary} . ($payload->{name} || "unnamed") . $self->{_boundary} . ($payload->{mtime} || "000") . $self->{_boundary} . $payload->{data});

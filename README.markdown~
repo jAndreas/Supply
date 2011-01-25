@@ -18,9 +18,7 @@ Delivering Javascript-, Stylesheet- & Image- files over one request, using MXHR.
 	});				
     </script>
 
-#New#
-
-Streaming images!
+#New# - Streaming images
 Since version 1.1.0, you can also stream images with SupplyJS. This could look like:
 
     supply.listen('image/jpg', function(payload, filename) {

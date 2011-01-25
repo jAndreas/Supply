@@ -29,7 +29,7 @@
  // });
  
  window.supply = (function(window, document, undefined) {
- 		var version				= '1.1.0',				// current version
+ 		var version				= '1.0.5',				// current version
  		dealer					= '/exec/supply.pl',	// server script which deals us the data
  		xhr						= null,					// XmlHttpRequest object
  		getLatestPacketInterval = null,					// timer Id
