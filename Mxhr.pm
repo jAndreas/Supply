@@ -3,14 +3,13 @@
 # MXHR Streamer
 # Author: Andreas Goebel, Aug/2010
 
-package InterRed::Util::Mxhr;
+package Mxhr;
 
 use MIME::Base64;
 use strict;
 use warnings;
 
-sub new
-{
+sub new {
 	my $class 			= shift;
 	my $self			= {};
 	$self->{_payloads} 	= [];
@@ -21,39 +20,33 @@ sub new
 	return $self;
 }
 
-sub getBoundary
-{
+sub getBoundary {
 	my ($self) = @_;
 	return $self->{_boundary};
 }
 
-sub addHtml
-{
+sub addHtml {
 	my ($self, $text, $name) = @_;
 	$self->addPayload($text, 'text/html', $name);
 }
 
-sub addImage
-{
+sub addImage {
 	my ($self, $image, $content_type, $name) = @_;
 	my $encoded = encode_base64($image);
 	$self->addPayload($encoded, $content_type, $name);
 }
 
-sub addJS
-{
+sub addJS {
 	my ($self, $script, $name, $mtime) = @_;
 	$self->addPayload($script, 'text/javascript', $name, $mtime);
 }
 
-sub addCSS
-{
+sub addCSS {
 	my ($self, $stylesheet, $name, $mtime) = @_;
 	$self->addPayload($stylesheet, 'text/css', $name, $mtime);
 }
 
-sub addPayload
-{
+sub addPayload {
 	my ($self, $data, $content_type, $name, $mtime) = @_;
 	push(@{$self->{_payloads}}, {
 		'name'			=> $name,
@@ -63,14 +56,12 @@ sub addPayload
 	});
 }
 
-sub stream
-{
+sub stream {
 	my ($self) 		= @_;
 	my $stream 		= [];
 	my $version		= '1.0.2';	
 	
-	foreach my $payload(@{$self->{_payloads}})
-	{				
+	foreach my $payload(@{$self->{_payloads}}) {				
 		push(@{$stream}, $payload->{content_type} . $self->{_boundary} . ($payload->{name} || "unnamed") . $self->{_boundary} . ($payload->{mtime} || "000") . $self->{_boundary} . $payload->{data});
 	}		
 	

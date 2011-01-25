@@ -1,6 +1,6 @@
 #SupplyJS#
 
-Delivering Javascript-, Stylesheet- & Image- files over one request, using MXHR.
+Delivering multiple Javascript & Stylesheet files in one request, using MXHR.
 
  `Example`:
 
@@ -17,27 +17,6 @@ Delivering Javascript-, Stylesheet- & Image- files over one request, using MXHR.
 		]			
 	});				
     </script>
-
-#New# - Streaming images
-Since version 1.1.0, you can also stream images with SupplyJS. This could look like:
-
-    supply.listen('image/jpg', function(payload, filename) {
-        jQuery('<img>', {
-            src: 'data:image/jpeg;base64,' + payload
-        }).appendTo(document.body);;
-    });
-
-    supply.setDealer('/cgi-bin/supply.pl').files({
-        debug: false,
-        images: [
-            '/images/foo.jpg',
-            '/images/bar.jpg',
-            '/images/another.jpg'
-        ]
-    });
-
-
-
     
 Only `supply.min.js` is loaded via the conventional `<script src=>` method. All other files in this example, are then
 fetched on the server and pushed to the browser in a single request (instead of five). Since each request means overhead, this method
@@ -60,8 +39,9 @@ or call `supply.setDealer()` before you call `supply.files()`:
 
 The second thing that needs to be configured is the servers absolute path to your files. This can be done in `supply.pl`:
 
-    my $base_dir = "/var/www/typeofnan";
-
+    my $javascript_dir	= "/var/www/typeofnan/js";
+    my $css_dir         = "/var/www/typeofnan/css";
+    
 So if we pass `/js/init.min.js` to `supply.files()`, `supply.pl` will open
 
     /var/www/typeofnan/js/init.min.js`
