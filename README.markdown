@@ -1,6 +1,6 @@
 #SupplyJS#
 
-Delivering Javascript-, Stylesheet- & Image- files over one request, using MXHR.
+Delivering Javascript-, Stylesheet- & Image- files over a single request, using MXHR.
 
  `Example`:
 
@@ -18,9 +18,9 @@ Delivering Javascript-, Stylesheet- & Image- files over one request, using MXHR.
 	});				
     </script>
 
-Only `supply.min.js` is loaded via the conventional `<script src=>` method. All other files in this example, are the
-fetched on the server and pushed to the browser in a single request (instead of five). Since each request means over
-is pretty fast.
+Only `supply.min.js` is loaded via the conventional `<script src="">` method. All other files in this example, are then
+fetched on the server and pushed to the browser in a single request (instead of five). Since each request means overhead
+this is pretty fast.
 
 
 
@@ -49,7 +49,7 @@ Since version 1.1.0, you can also stream images with SupplyJS. This could look l
     
 As a rule: The more files you're loading, the greater is the benefit you gain using Supply!
 
-Example & Playground: http://www.typeofnan.com/lab/mxhr-stream/
+Example & Playground: <a href="http://www.typeofnan.com/lab/mxhr-stream/">http://www.typeofnan.com/lab/mxhr-stream/</a>
 
 
 
