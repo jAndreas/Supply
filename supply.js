@@ -228,7 +228,10 @@ window.supply = ( function(window, document, undefined) {
                 xhr.send(null);
             } else {
                 xhr.open('POST', dealer, true);
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+		if(!(settings & options.compatibleIE) )
+	            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
                 xhr.send(params.join('&'));
             }
         } else { // debug mode
